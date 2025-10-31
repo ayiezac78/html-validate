@@ -1,0 +1,41 @@
+{
+  "name": "html-sentinel",
+  "description": "an extended html validator",
+  "keywords": [
+    "html-validator",
+    "validation",
+    "html",
+    "html-validate"
+  ],
+  "module": "index.ts",
+  "main": "index.ts",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "bun build index.ts --outdir dist --target node && bun run build:declaration",
+    "build:declaration": "tsc --emitDeclarationOnly --project tsconfig.types.json",
+    "lint":"bunx biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.2",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "html-validate": "^10.2.1"
+  },
+  "files": [
+    "dist/*.js",
+    "dist/*.d.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/*.d.ts"
+    }
+  }
+}
