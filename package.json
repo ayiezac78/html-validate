@@ -1,41 +1,43 @@
 {
   "name": "html-sentinel",
-  "description": "an extended html validator",
-  "keywords": [
-    "html-validator",
-    "validation",
-    "html",
-    "html-validate"
-  ],
-  "module": "index.ts",
-  "main": "index.ts",
-  "types": "./dist/index.d.ts",
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "build": "bun build index.ts --outdir dist --target node && bun run build:declaration",
-    "build:declaration": "tsc --emitDeclarationOnly --project tsconfig.types.json",
-    "lint":"bunx biome check --write ."
-  },
+  "version": "0.0.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "devDependencies": {
-    "@biomejs/biome": "2.3.2",
-    "@types/bun": "latest"
+    "@biomejs/biome": "2.3.4",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@prettier/html-event-attributes": "^0.0.1",
+    "@types/bun": "latest",
+    "@types/glob": "8",
+    "bunup": "^0.15.14",
+    "html-validate": "^10.3.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "minimatch": "9",
+    "tsdown": "^0.16.2"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
-  "dependencies": {
-    "html-validate": "^10.2.1"
-  },
-  "files": [
-    "dist/*.js",
-    "dist/*.d.ts"
-  ],
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/*.d.ts"
-    }
-  }
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "description": "A html-validate plugin",
+  "files": [
+    "dist"
+  ],
+  "lint-staged": {
+    "*.{html,js,jsx,ts,tsx}": ["bun run lint"]
+  },
+  "scripts": {
+    "build": "bunx bunup",
+    "lint": "bunx biome lint --write",
+    "prepublishOnly": "bun run build",
+    "prepare": "husky"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }
