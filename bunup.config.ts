@@ -2,7 +2,7 @@ import type { BuildConfig } from "bun";
 import { defineConfig } from "bunup";
 
 export default defineConfig({
-	entry: ["./src/index.ts"],
+	entry: ["./src/index.ts", "!.husky/**/*",],
 	outDir: "./dist",
 	dts: true,
 	clean: true,
