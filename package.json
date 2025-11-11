@@ -1,6 +1,6 @@
 {
   "name": "html-sentinel-shepherd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "devDependencies": {
@@ -30,7 +30,9 @@
     "dist"
   ],
   "lint-staged": {
-    "*.{html,js,jsx,ts,tsx}": ["bun run lint"]
+    "*.{html,js,jsx,ts,tsx}": [
+      "bun run lint"
+    ]
   },
   "scripts": {
     "build": "bunx bunup",
