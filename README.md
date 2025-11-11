@@ -5,3 +5,4 @@ A custom plugin for html-validate linting rule for HTML files.
 
 ```js
 npm i -D html-sentinel-shepherd
+```
