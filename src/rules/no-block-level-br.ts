@@ -21,7 +21,7 @@ function getPrevMeaningful(node: HtmlElement) {
 	return null;
 }
 
-function getNextMeaningful(node:HtmlElement) {
+function getNextMeaningful(node: HtmlElement) {
 	const parent = node.parent;
 	if (!parent) return null;
 
@@ -62,11 +62,15 @@ export default class NoBrBetweenElementsRule extends Rule {
 				const prev = getPrevMeaningful(br) as HtmlElement;
 				const next = getNextMeaningful(br) as HtmlElement;
 
-				const prevIsText = prev && prev.nodeType === 3 && prev.textContent.trim() !== "";
-				const nextIsText = next && next.nodeType === 3 && next.textContent.trim() !== "";
+				const prevIsText =
+					prev && prev.nodeType === 3 && prev.textContent.trim() !== "";
+				const nextIsText =
+					next && next.nodeType === 3 && next.textContent.trim() !== "";
 
-				const prevIsBr = prev && prev.nodeType === 1 && prev.tagName.toLowerCase() === "br";
-				const nextIsBr = next && next.nodeType === 1 && next.tagName.toLowerCase() === "br";
+				const prevIsBr =
+					prev && prev.nodeType === 1 && prev.tagName.toLowerCase() === "br";
+				const nextIsBr =
+					next && next.nodeType === 1 && next.tagName.toLowerCase() === "br";
 
 				const isAdjacentToText = prevIsText || nextIsText;
 				const isStacked = prevIsBr || nextIsBr;
