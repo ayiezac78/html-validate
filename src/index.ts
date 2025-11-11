@@ -27,7 +27,7 @@ export default definePlugin({
 				"html-sentinel-shepherd/link-rel-canonical-require": "error",
 				"html-sentinel-shepherd/meta-description-require": "error",
 				"html-sentinel-shepherd/required-figcaption": "error",
-				"html-sentinel-shepherd/required-img-width-height-att": "error",
+				"html-sentinel-shepherd/required-img-width-height-attr": "error",
 			},
 		},
 	},
