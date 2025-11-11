@@ -3,4 +3,4 @@ A custom plugin for html-validate linting rule for HTML files.
 
 ## Getting Started
 
-to be updated..
+`npm i html-sentinel-shepherd -D`
