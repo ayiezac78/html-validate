@@ -14,7 +14,7 @@ This example assumes you are using the .htmlvalidate.mjs configuration flavor. H
 	"$schema": "https://html-validate.org/schemas/config.json",
 	"extends": [
 		"html-validate:recommended",
-		"html-sentinel-shepherd:recommended"
++		"html-sentinel-shepherd:recommended"
 	],
 	"plugins": ["html-sentinel-shepherd"],
 	"elements": ["html5"],
