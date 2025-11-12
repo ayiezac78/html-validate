@@ -2,28 +2,33 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
-  create:
     tags:
-      - v*
+      - "v*"
+  workflow_dispatch:
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: oven-sh/setup-bun@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
           registry-url: https://registry.npmjs.org/
 
-      - run: bun ci
-      - run: bun run build
-      - run: bunx npm publish --access public
+      - name: Install dependencies
+        run: bun ci
+
+      - name: Build
+        run: bun run build
+
+      - name: Publish to NPM
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: bunx npm publish --access public
         env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
