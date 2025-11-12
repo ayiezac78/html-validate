@@ -34,11 +34,11 @@ jobs:
       - run: bun ci
 
       # change this if you publish to npmjs instead of GPR
-      - run: npm publish
+      - run: bunx npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # change this if you publish to npmjs instead of GPR
-      - run: npm publish --tag next
+      - run: bunx npm publish --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
