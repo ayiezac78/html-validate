@@ -30,11 +30,11 @@ jobs:
           bun-version: latest
       - run: bun ci
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: ./dist
+      # - name: Download build artifacts
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: build-output
+      #     path: ./dist
 
       - name: Publish to npm
         run: bunx npm publish --access public
