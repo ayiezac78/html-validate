@@ -1,6 +1,9 @@
 # html-sentinel-shepherd
 A custom plugin for html-validate linting rule for HTML files.
 
+## npm
+https://www.npmjs.com/package/html-sentinel-shepherd
+
 ## Getting Started
 
 ### Add package as dev dependency
