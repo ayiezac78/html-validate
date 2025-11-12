@@ -36,7 +36,7 @@ jobs:
           version: latest
       - name: Run Biome
         run: biome ci .
-      # - id: test
-      #   name: Run test
-      #   run: |
-      #     bun test
+      - run: bun run build
+      - run: bunx npm publish --access public
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
