@@ -47,5 +47,3 @@ jobs:
     steps:
       - name: Trigger release workflow
         run: gh workflow run release.yml
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
