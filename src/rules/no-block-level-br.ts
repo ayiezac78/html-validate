@@ -5,38 +5,6 @@ import {
 	type RuleDocumentation,
 } from "html-validate";
 
-function getPrevMeaningful(node: HtmlElement) {
-	const parent = node.parent;
-	if (!parent) return null;
-
-	const children = parent.childNodes;
-	let i = children.indexOf(node) - 1;
-
-	while (i >= 0) {
-		const n = children[i];
-		if (n?.nodeType === 1) return n; // element
-		if (n?.nodeType === 3 && n.textContent.trim() !== "") return n; // real text
-		i--;
-	}
-	return null;
-}
-
-function getNextMeaningful(node: HtmlElement) {
-	const parent = node.parent;
-	if (!parent) return null;
-
-	const children = parent.childNodes;
-	let i = children.indexOf(node) + 1;
-
-	while (i < children.length) {
-		const n = children[i];
-		if (n?.nodeType === 1) return n; // element
-		if (n?.nodeType === 3 && n?.textContent.trim() !== "") return n; // real text
-		i++;
-	}
-	return null;
-}
-
 export default class NoBrBetweenElementsRule extends Rule {
 	public override documentation(): RuleDocumentation {
 		return {
@@ -59,8 +27,8 @@ export default class NoBrBetweenElementsRule extends Rule {
 
 				if (!parent) continue;
 
-				const prev = getPrevMeaningful(br) as HtmlElement;
-				const next = getNextMeaningful(br) as HtmlElement;
+				const prev = this.getPrevMeaningful(br) as HtmlElement;
+				const next = this.getNextMeaningful(br) as HtmlElement;
 
 				const prevIsText =
 					prev && prev.nodeType === 3 && prev.textContent.trim() !== "";
@@ -86,5 +54,37 @@ export default class NoBrBetweenElementsRule extends Rule {
 				});
 			}
 		});
+	}
+
+	private getPrevMeaningful(node: HtmlElement) {
+		const parent = node.parent;
+		if (!parent) return null;
+
+		const children = parent.childNodes;
+		let i = children.indexOf(node) - 1;
+
+		while (i >= 0) {
+			const n = children[i];
+			if (n?.nodeType === 1) return n; // element
+			if (n?.nodeType === 3 && n.textContent.trim() !== "") return n; // real text
+			i--;
+		}
+		return null;
+	}
+
+	private getNextMeaningful(node: HtmlElement) {
+		const parent = node.parent;
+		if (!parent) return null;
+
+		const children = parent.childNodes;
+		let i = children.indexOf(node) + 1;
+
+		while (i < children.length) {
+			const n = children[i];
+			if (n?.nodeType === 1) return n; // element
+			if (n?.nodeType === 3 && n?.textContent.trim() !== "") return n; // real text
+			i++;
+		}
+		return null;
 	}
 }
