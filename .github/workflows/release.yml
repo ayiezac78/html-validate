@@ -1,25 +1,25 @@
-name: Release
+# name: Release
 
-on:
-  push:
-    tags:
-      - "v*"
+# on:
+#   push:
+#     tags:
+#       - "v*"
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+# jobs:
+#   release:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v5
+#         with:
+#           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.x
-          registry-url: https://registry.npmjs.org/
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 24.x
+#           registry-url: https://registry.npmjs.org/
 
-      - run: bun ci
-      - run: bun run build
-      - run: bunx npm publish --access public
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+#       - run: bun ci
+#       - run: bun run build
+#       - run: bunx npm publish --access public
+#         env:
+#           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
