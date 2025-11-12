@@ -5,8 +5,8 @@ on:
     types: [published]
   push:
     tags:
-      - "v*.*.*"
-  workflow_dispatch:
+      - "v*.*.*" # Triggers when you push a tag like v1.0.0
+  workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
   build:
@@ -18,6 +18,7 @@ jobs:
           bun-version: latest
       - run: bun ci
       - run: bun run build
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -28,8 +29,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      packages: write
       contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
@@ -43,19 +44,18 @@ jobs:
           name: build-output
           path: ./dist
 
-      - name: Extract version from Git tag
+      - name: Extract version
         id: get_version
         run: |
           REF="${{ github.ref }}"
           if [[ "$REF" == refs/tags/v* ]]; then
             VERSION=$(echo ${REF#refs/tags/v})
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "Found tag version: $VERSION"
           else
-            echo "Not a semantic version tag push, skipping extraction."
-            echo "VERSION=" >> $GITHUB_OUTPUT
-            exit 1
+            echo "No tag found, using package.json version"
+            VERSION=$(jq -r .version package.json)
           fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
         run: |
@@ -64,7 +64,11 @@ jobs:
           bun pm version "$VERSION" --no-git-tag-version
 
       - name: Publish to npm
-        if: steps.get_version.outputs.VERSION != ''
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: bun pm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip publish on non-tag runs
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: echo "Not a tag push — skipping npm publish."
