@@ -1,4 +1,4 @@
-import { definePlugin } from "html-validate";
+import { definePlugin, type Plugin } from "html-validate";
 import LinkRelCanonicalRequire from "./rules/link-rel-canonical-require";
 import MetaDescriptionRequire from "./rules/meta-description-require";
 import NoBrBetweenElementsRule from "./rules/no-block-level-br";
@@ -31,4 +31,4 @@ export default definePlugin({
 			},
 		},
 	},
-});
+}) as Plugin;
