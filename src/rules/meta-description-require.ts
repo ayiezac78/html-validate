@@ -9,7 +9,7 @@ export default class MetaDescriptionRequire extends Rule {
 		};
 	}
 
-	setup() {
+	public setup() {
 		this.on("dom:ready", (event) => {
 			const { document } = event;
 			const head = document.querySelector("head");
@@ -41,16 +41,16 @@ export default class MetaDescriptionRequire extends Rule {
 					message:
 						"<meta name='description'> content attribute must not be empty.",
 				});
-			}
+			} else {
+				const characterLength = (content.value as string).length;
 
-			const characterLength = (content?.value as string).length;
-
-			if (characterLength < 70 || characterLength > 160) {
-				this.report({
-					node: metaDesc,
-					message:
-						"<meta name='description'> content should be 70-160 characters long.",
-				});
+				if (characterLength < 70 || characterLength > 160) {
+					this.report({
+						node: metaDesc,
+						message:
+							"<meta name='description'> content should be 70-160 characters long.",
+					});
+				}
 			}
 		});
 	}
