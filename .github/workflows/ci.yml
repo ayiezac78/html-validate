@@ -35,8 +35,4 @@ jobs:
         with:
           version: latest
       - name: Run Biome
-        run: biome ci .
-      # - id: test
-      #   name: Run test
-      #   run: |
-      #     bun test
+        run: biome ci

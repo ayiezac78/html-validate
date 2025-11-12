@@ -1,33 +1,26 @@
-name: releases
+name: Release
 
 on:
-  release:
-    types: [created, published]
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+          registry-url: https://registry.npmjs.org/
+
       - run: bun ci
       - run: bun run build
-
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v5
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-          registry-url: https://npm.pkg.github.com/
-      - run: bun ci
-      - run: bun pm publish
+      - run: bunx npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
