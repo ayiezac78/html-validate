@@ -9,6 +9,6 @@ export default defineConfig({
 	format: ["cjs", "esm"],
 	minify: true,
 	target: "node",
-	sourcemap: true,
+	sourcemap: "linked",
 	packages: "bundle",
 }) as BuildConfig;
