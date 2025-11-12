@@ -18,13 +18,18 @@ jobs:
           bun-version: latest
       - run: bun ci
       - run: bun run build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./dist
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     permissions:
       packages: write
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
@@ -32,18 +37,28 @@ jobs:
           bun-version: latest
       - run: bun ci
 
-      # - name: Download build artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:Client HTML-Validate: connection to server is erroring. write EPIPE
-      #     name: build-output
-      #     path: ./dist
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./dist
+
+      - name: Extract version from Git tag
+        id: get_version
+        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v} | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          if [ -n "$VERSION" ]; then
+            bun version "$VERSION" --no-git-tag-version
+            echo "Updated package.json version to $VERSION"
+          else
+            echo "Could not determine version from tag."
+            exit 1
+          fi
 
       - name: Publish to npm
         run: bunx npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    # - name: Publish to npm
-    # - run: bunx npm publish --access public --registry https://registry.npmjs.org/
-    #   env:
-    #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
