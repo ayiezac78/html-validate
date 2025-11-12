@@ -25,18 +25,6 @@ export default defineConfig({
 	target: "es2020",
 	platform: "node",
 
-	// Custom file extensions for proper module resolution
-
-	// Disable faulty CommonJS interop that adds `module.exports = exports.default`
-
-	//   // Keep function names for better debugging
-	// outExtensions: {
-	//   '.js': '.js',
-	//   '.cjs': '.cjs',
-	//   '.d.ts': '.d.ts',
-	//   '.d.cts': '.d.cts',
-	// }
-
 	// Tree shake unused code
 	treeshake: true,
 });
