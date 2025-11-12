@@ -45,20 +45,26 @@ jobs:
 
       - name: Extract version from Git tag
         id: get_version
-        run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v} | xargs)" >> $GITHUB_OUTPUT
+        run: |
+          REF="${{ github.ref }}"
+          if [[ "$REF" == refs/tags/v* ]]; then
+            VERSION=$(echo ${REF#refs/tags/v})
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Found tag version: $VERSION"
+          else
+            echo "Not a semantic version tag push, skipping extraction."
+            echo "VERSION=" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
       - name: Update package.json version
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          if [ -n "$VERSION" ]; then
-            bun pm version "$VERSION" --no-git-tag-version
-            echo "Updated package.json version to $VERSION"
-          else
-            echo "Could not determine version from tag."
-            exit 1
-          fi
+          echo "Applying version $VERSION to package.json"
+          bun pm version "$VERSION" --no-git-tag-version
 
       - name: Publish to npm
+        if: steps.get_version.outputs.VERSION != ''
         run: bun pm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
