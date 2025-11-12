@@ -51,7 +51,7 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
           if [ -n "$VERSION" ]; then
-            bun version "$VERSION" --no-git-tag-version
+            bun pm version "$VERSION" --no-git-tag-version
             echo "Updated package.json version to $VERSION"
           else
             echo "Could not determine version from tag."
@@ -59,6 +59,6 @@ jobs:
           fi
 
       - name: Publish to npm
-        run: bunx npm publish --access public
+        run: bun pm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
