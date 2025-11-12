@@ -28,6 +28,6 @@ jobs:
           node-version: latest
           registry-url: https://npm.pkg.github.com/
       - run: bun ci
-      - run: bunx npm run publish
+      - run: bunx npm run publish 
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
