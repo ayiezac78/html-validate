@@ -48,7 +48,7 @@
 	"scripts": {
 		"build": "bunx tsdown",
 		"lint": "bunx biome check --write .",
-		"patch": "bunx npm version patch",
+		"patch": "bun pm version patch",
 		"prepublishOnly": "bun run build",
 		"prepare": "husky"
 	},
