@@ -6,7 +6,7 @@ import NoUseEventHandlerAttrRule from "./rules/no-use-event-handler-attr";
 import RequiredFigcaptionRule from "./rules/required-figcaption";
 import RequiredWidthHeightRule from "./rules/required-img-width-height-attr";
 
-export default definePlugin({
+const plugin = definePlugin({
 	name: "html-sentinel-shepherd",
 	rules: {
 		"html-sentinel-shepherd/no-block-level-br": NoBrBetweenElementsRule,
@@ -32,3 +32,5 @@ export default definePlugin({
 		},
 	},
 });
+
+export default plugin;
