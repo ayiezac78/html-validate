@@ -33,7 +33,7 @@ export default class LinkRelCanonicalRequire extends Rule {
 			if (
 				!href ||
 				href.value === null ||
-				(href.value as string).trim() === ""
+				(typeof href.value === "string" && href.value.trim() === "")
 			) {
 				this.report({
 					node: canonicalLink,

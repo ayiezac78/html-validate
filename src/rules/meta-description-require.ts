@@ -34,7 +34,7 @@ export default class MetaDescriptionRequire extends Rule {
 			if (
 				!content ||
 				content.value === null ||
-				(content.value as string).trim() === ""
+				(typeof content.value === "string" && content.value.trim() === "")
 			) {
 				this.report({
 					node: metaDesc,
