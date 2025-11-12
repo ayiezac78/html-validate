@@ -36,14 +36,3 @@ jobs:
           version: latest
       - name: Run Biome
         run: biome ci
-
-  trigger-release:
-    needs: quality
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write # required to trigger another workflow
-
-    steps:
-      - name: Trigger release workflow
-        run: gh workflow run release.yml
