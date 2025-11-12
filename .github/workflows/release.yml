@@ -3,22 +3,31 @@ name: Release
 on:
   release:
     types: [published]
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun ci
+      - run: bun run build
+
   publish:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun ci
