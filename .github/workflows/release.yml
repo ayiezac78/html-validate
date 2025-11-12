@@ -2,7 +2,7 @@ name: releases
 
 on:
   release:
-    types: [created]
+    types: [created, published]
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
         with:
-          node-version: latest
+          bun-version: latest
       - run: bun ci
       - run: bun run build
 
@@ -25,9 +25,9 @@ jobs:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
         with:
-          node-version: latest
+          bun-version: latest
           registry-url: https://npm.pkg.github.com/
       - run: bun ci
-      - run: bunx npm run publish
+      - run: bun pm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
