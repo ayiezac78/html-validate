@@ -11,7 +11,7 @@ https://www.npmjs.com/package/html-sentinel-shepherd
 npm i -D html-sentinel-shepherd
 ```
 ### Update your HTML-validate configuration
-This example assumes you are using the .htmlvalidate.mjs configuration flavor. HTML-validate also supports other [configuration](https://html-validate.org/usage/index.html#configuration).
+This example assumes you are using the .htmlvalidate.json configuration flavor. HTML-validate also supports other [configuration](https://html-validate.org/usage/index.html#configuration).
 ```diff
   {
   	"$schema": "https://html-validate.org/schemas/config.json",
