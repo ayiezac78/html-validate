@@ -9,5 +9,5 @@ export default defineConfig({
 	format: ["cjs", "esm"],
 	minify: true,
 	target: "node",
-	splitting: true,
+	sourcemap: true,
 }) as BuildConfig;
