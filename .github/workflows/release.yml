@@ -48,6 +48,6 @@ jobs:
           path: ./dist
 
       - name: Publish to npm
-        run: bun pm publish --access public
+        run: bunx npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
