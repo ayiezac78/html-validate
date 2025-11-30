@@ -6,8 +6,7 @@ on:
   push:
     tags:
       - "v*.*.*" # Triggers when you push a tag like v1.0.0
-  repository_dispatch: # Allow manual trigger from GitHub UI
-    types: [semantic-release]
+  workflow_dispatch:
 
 env:
   HUSKY: 0
