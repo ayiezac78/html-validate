@@ -27,7 +27,7 @@
 	},
 	"peerDependencies": {
 		"typescript": "^5.9.3",
-		"html-validate": "^10.3.1"
+		"html-validate": "^10.4.0"
 	},
 	"exports": {
 		".": {
