@@ -52,7 +52,7 @@ export default class NoBrBetweenElementsRule extends Rule {
 		});
 	}
 
-	private getPrevMeaningful(node: HtmlElement) {
+	public getPrevMeaningful(node: HtmlElement) {
 		const parent = node.parent;
 
 		if (!parent) return null;
@@ -69,7 +69,7 @@ export default class NoBrBetweenElementsRule extends Rule {
 		return null;
 	}
 
-	private getNextMeaningful(node: HtmlElement) {
+	public getNextMeaningful(node: HtmlElement) {
 		const parent = node.parent;
 
 		if (!parent) return null;

@@ -1,4 +1,4 @@
-import { HtmlValidate } from "html-validate";
+import { type HtmlElement, HtmlValidate } from "html-validate";
 import { describe, expect, it } from "vitest";
 import NoBrBetweenElementsRule from "../../src/rules/no-block-level-br";
 import "html-validate/vitest";
@@ -19,13 +19,36 @@ const htmlvalidate = new HtmlValidate({
 });
 
 describe("no-br-between-elements", () => {
-	it("should handle <br> at document root level gracefully", () => {
-		// This tests the edge case where br might not have a parent
-		// In practice, this is malformed HTML but should not crash
-		const markup = `<br>`;
-		const report = htmlvalidate.validateString(markup);
-		// Should not crash, may or may not report an error depending on DOM structure
-		expect(report).toBeDefined();
+	it("should handle null parent in getPrevMeaningful", () => {
+		const rule = new NoBrBetweenElementsRule();
+
+		// Create a mock node with no parent
+		const mockNode = {
+			parent: null,
+			nodeType: 1,
+			tagName: "br",
+		} as HtmlElement;
+
+		// Access the private method (TypeScript will complain, but it works at runtime)
+		const result = rule.getPrevMeaningful(mockNode);
+
+		expect(result).toBeNull();
+	});
+
+	it("should handle null parent in getNextMeaningful", () => {
+		const rule = new NoBrBetweenElementsRule();
+
+		// Create a mock node with no parent
+		const mockNode = {
+			parent: null,
+			nodeType: 1,
+			tagName: "br",
+		} as HtmlElement;
+
+		// Access the private method
+		const result = rule.getNextMeaningful(mockNode);
+
+		expect(result).toBeNull();
 	});
 
 	it("should handle <br> as first child in parent", () => {

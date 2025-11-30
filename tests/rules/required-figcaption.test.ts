@@ -76,10 +76,16 @@ describe("required-figcaption", () => {
 		const report = htmlvalidate.validateString(html);
 
 		expect(report).toBeInvalid();
-		expect(report).toHaveError(
-			"required-figcaption",
-			"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
-		);
+		expect(report).toHaveErrors([
+			[
+				"required-figcaption",
+				"The <figcaption> element is required for <figure> elements.",
+			],
+			[
+				"required-figcaption",
+				"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
+			],
+		]);
 	});
 
 	it("should not report error when div contains only img", () => {

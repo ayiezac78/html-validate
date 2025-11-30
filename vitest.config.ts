@@ -16,7 +16,6 @@ export default defineConfig({
 
 		// Test file patterns
 		include: ["tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-		reporters: ["html"],
 
 		// Coverage configuration
 		coverage: {
