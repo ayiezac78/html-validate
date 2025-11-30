@@ -10,48 +10,57 @@ export default class RequiredFigcaptionRule extends Rule {
 	}
 
 	public setup() {
-		this.on("element:ready", ({ target }) => {
-			if (target.tagName === "figure") {
-				const hasImg = target.querySelector("img");
-				const hasFigcaption = target.querySelector("figcaption");
-				const hasCite = target.querySelector("cite");
+		this.on("dom:ready", (event) => {
+			const { document } = event;
 
-				// Check for missing img
-				if (!hasImg) {
-					this.report({
-						node: target,
-						message: "The <img> element is required for <figure> elements.",
-					});
-				}
+			const figureElements = document.getElementsByTagName("figure");
+			const divElements = document.getElementsByTagName("div");
 
-				// Check for cite instead of figcaption (more specific error)
-				if (hasImg && hasCite && !hasFigcaption) {
-					this.report({
-						node: target,
-						message:
-							"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
-					});
-				}
-				// Check for missing figcaption (generic error, only if cite check didn't trigger)
-				else if (!hasFigcaption) {
-					this.report({
-						node: target,
-						message:
-							"The <figcaption> element is required for <figure> elements.",
-					});
+			for (const figure of figureElements) {
+				if (figure.tagName === "figure") {
+					const hasImg = figure.querySelector("img");
+					const hasFigcaption = figure.querySelector("figcaption");
+					const hasCite = figure.querySelector("cite");
+
+					// Check for missing img
+					if (!hasImg) {
+						this.report({
+							node: figure,
+							message: "The <img> element is required for <figure> elements.",
+						});
+					}
+
+					// Check for cite instead of figcaption (more specific error)
+					if (hasImg && hasCite && !hasFigcaption) {
+						this.report({
+							node: figure,
+							message:
+								"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
+						});
+					}
+					// Check for missing figcaption (generic error, only if cite check didn't trigger)
+					else if (!hasFigcaption) {
+						this.report({
+							node: figure,
+							message:
+								"The <figcaption> element is required for <figure> elements.",
+						});
+					}
 				}
 			}
 
-			if (target.tagName === "div") {
-				const hasImg = target.querySelector("img");
-				const hasCite = target.querySelector("cite");
+			for (const div of divElements) {
+				if (div.tagName === "div") {
+					const hasImg = div.querySelector("img");
+					const hasCite = div.querySelector("cite");
 
-				if (hasImg && hasCite) {
-					this.report({
-						node: target,
-						message:
-							"Consider using <figure> with <figcaption> instead of <div> with <img> and <cite> for better semantic HTML.",
-					});
+					if (hasImg && hasCite) {
+						this.report({
+							node: div,
+							message:
+								"Consider using <figure> with <figcaption> instead of <div> with <img> and <cite> for better semantic HTML.",
+						});
+					}
 				}
 			}
 		});
