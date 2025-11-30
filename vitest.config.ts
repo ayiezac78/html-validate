@@ -12,13 +12,18 @@ export default defineConfig({
 		// Use Node.js environment for library testing
 		environment: "node",
 
+		setupFiles: ["./tests/setup.ts"],
+
 		// Test file patterns
 		include: ["tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+		reporters: ["html"],
 
 		// Coverage configuration
 		coverage: {
+			enabled: true,
 			provider: "v8",
 			reporter: ["text", "json", "html"],
+			include: ["src/**/*.{ts,tsx}"],
 			exclude: [
 				"node_modules/",
 				"dist/",

@@ -14,13 +14,9 @@ export default class MetaDescriptionRequire extends Rule {
 			const { document } = event;
 			const head = document.querySelector("head");
 
-			if (!head) {
-				return;
-			}
+			const metaDesc = head?.querySelectorAll('meta[name="description"]');
 
-			const metaDesc = head.querySelector('meta[name="description"]');
-
-			if (!metaDesc) {
+			if (!metaDesc || metaDesc.length === 0) {
 				this.report({
 					node: head,
 					message:
@@ -29,28 +25,40 @@ export default class MetaDescriptionRequire extends Rule {
 				return;
 			}
 
-			const content = metaDesc.getAttribute("content");
+			for (const meta of metaDesc) {
+				const content = meta.getAttribute("content");
 
-			if (
-				!content ||
-				content.value === null ||
-				(typeof content.value === "string" && content.value.trim() === "")
-			) {
-				this.report({
-					node: metaDesc,
-					message:
-						"<meta name='description'> content attribute must not be empty.",
-				});
-			} else {
-				const characterLength = (content.value as string).length;
-
-				if (characterLength < 70 || characterLength > 160) {
+				if (
+					!content ||
+					content.value === null ||
+					(typeof content.value === "string" && content.value.trim() === "")
+				) {
 					this.report({
-						node: metaDesc,
+						node: meta,
 						message:
-							"<meta name='description'> content should be 70-160 characters long.",
+							"<meta name='description'> content attribute must not be empty.",
 					});
+				} else {
+					const characterLength = (content.value as string).length;
+
+					if (characterLength < 70 || characterLength > 160) {
+						this.report({
+							node: meta,
+							message:
+								"<meta name='description'> content should be 70-160 characters long.",
+						});
+					}
 				}
+			}
+
+			// Check for duplicate meta desc tags
+			if (metaDesc.length > 1) {
+				const meta = metaDesc[0] as (typeof metaDesc)[0];
+				this.report({
+					node: meta,
+					message:
+						"Multiple <meta name='description'> tags found; only one is allowed.",
+				});
 			}
 		});
 	}

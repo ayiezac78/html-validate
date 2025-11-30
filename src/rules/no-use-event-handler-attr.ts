@@ -13,9 +13,11 @@ export default class NoUseEventHandlerAttrRule extends Rule {
 	public setup() {
 		this.on("element:ready", ({ target }) => {
 			for (const htmlEventAttr of htmlEventAttributes) {
-				if (target.hasAttribute(htmlEventAttr)) {
+				const attr = target.getAttribute(htmlEventAttr);
+				if (attr) {
 					this.report({
 						node: target,
+						location: attr.keyLocation,
 						message: `The use of the ${htmlEventAttr} attribute is discouraged. Please use on <script> inside instead.`,
 					});
 				}

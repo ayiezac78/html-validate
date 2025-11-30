@@ -18,8 +18,15 @@ export default class RequiredWidthHeightRule extends Rule {
 			const width = target.getAttribute("width");
 			const height = target.getAttribute("height");
 
+			const hasValidWidth =
+				width && typeof width.value === "string" && width.value.trim() !== "";
+			const hasValidHeight =
+				height &&
+				typeof height.value === "string" &&
+				height.value.trim() !== "";
+
 			switch (true) {
-				case !width && !height:
+				case !hasValidWidth && !hasValidHeight:
 					this.report({
 						node: target,
 						message:
@@ -36,6 +43,12 @@ export default class RequiredWidthHeightRule extends Rule {
 					this.report({
 						node: target,
 						message: "<img> element is missing the 'height' attribute.",
+					});
+					break;
+				case height?.value === null:
+					this.report({
+						node: target,
+						message: "'height' attribute value must not be empty.",
 					});
 					break;
 			}

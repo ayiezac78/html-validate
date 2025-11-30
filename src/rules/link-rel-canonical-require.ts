@@ -12,34 +12,74 @@ export default class LinkRelCanonicalRequire extends Rule {
 	public setup() {
 		this.on("dom:ready", (event) => {
 			const { document } = event;
-			const head = document.querySelector("head");
+			const head = document.getElementsByTagName("head");
 
-			if (!head) {
+			if (!head || head.length === 0) {
 				return;
 			}
 
-			const canonicalLink = head.querySelector('link[rel="canonical"]');
+			for (const headElement of head) {
+				const links = headElement.getElementsByTagName("link");
+				const canonicalLinks: typeof links = [];
 
-			if (!canonicalLink) {
-				this.report({
-					node: head,
-					message: "<link rel='canonical'> must be present inside <head>.",
-				});
-				return;
-			}
+				for (const link of links) {
+					const rel = link.getAttributeValue("rel");
+					if (rel && rel.toLowerCase() === "canonical") {
+						canonicalLinks.push(link);
+					}
+				}
 
-			const href = canonicalLink.getAttribute("href");
+				// Check if no canonical link exists
+				if (canonicalLinks.length === 0) {
+					this.report({
+						node: headElement,
+						message: "<link rel='canonical'> must be present inside <head>.",
+					});
+				}
 
-			if (
-				!href ||
-				href.value === null ||
-				(typeof href.value === "string" && href.value.trim() === "")
-			) {
-				this.report({
-					node: canonicalLink,
-					message:
-						"<link rel='canonical'> must have a non-empty href attribute.",
-				});
+				// Check for duplicate canonical links
+				if (canonicalLinks.length > 1) {
+					const firstLink = canonicalLinks[0] as (typeof links)[0];
+					this.report({
+						node: firstLink,
+						message:
+							"Multiple canonical <link> tags found; only one is allowed.",
+					});
+				}
+
+				for (const canonical of canonicalLinks) {
+					const href = canonical.getAttributeValue("href");
+
+					if (
+						!href ||
+						href === null ||
+						(typeof href === "string" && href.trim() === "")
+					) {
+						this.report({
+							node: canonical,
+							message:
+								"<link rel='canonical'> must have a non-empty href attribute.",
+						});
+
+						continue;
+					}
+
+					const hasSSI = /<!--#\s*include\s+virtual=/.test(href);
+
+					if (hasSSI) {
+						continue;
+					}
+
+					try {
+						// Check if it's a valid absolute URL
+						new URL(href);
+					} catch (_e) {
+						this.report({
+							node: canonical,
+							message: `<link rel='canonical'> has an invalid URL: "${href}".`,
+						});
+					}
+				}
 			}
 		});
 	}
