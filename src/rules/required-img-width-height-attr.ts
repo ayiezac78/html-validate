@@ -38,13 +38,13 @@ export default class RequiredWidthHeightRule extends Rule {
 								"<img> element must have both 'width' and 'height' attributes.",
 						});
 						break;
-					case !width:
+					case !hasValidWidth:
 						this.report({
 							node: img,
 							message: "<img> element is missing the 'width' attribute.",
 						});
 						break;
-					case !height:
+					case !hasValidHeight:
 						this.report({
 							node: img,
 							message: "<img> element is missing the 'height' attribute.",
