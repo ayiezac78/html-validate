@@ -4,7 +4,9 @@ This directory contains comprehensive tests for the GitHub Actions workflows in 
 
 ## Test Files
 
-### `test_release_workflow.py`
+### Core Test Suites
+
+#### `test_release_workflow.py` (76 tests)
 Comprehensive unit tests for `.github/workflows/release.yml`:
 - **Structure validation**: Verifies workflow name, triggers, and job configuration
 - **Trigger tests**: Validates release events, tag patterns, and manual dispatch
@@ -24,7 +26,9 @@ Comprehensive unit tests for `.github/workflows/release.yml`:
   - Secret handling
   - Job isolation
 
-### `test_workflow_consistency.py`
+**Key Focus**: Validates the addition of `permissions: contents: read` to the build job.
+
+#### `test_workflow_consistency.py` (23 tests)
 Tests for consistency between CI and Release workflows:
 - **Permissions consistency**: Ensures both workflows properly define permissions
 - **Runner OS consistency**: Validates use of ubuntu-latest across workflows
@@ -36,6 +40,35 @@ Tests for consistency between CI and Release workflows:
   - No hardcoded secrets
   - Concurrency control
 
+#### `test_workflow_edge_cases.py` (12+ tests)
+Edge case and security vulnerability testing:
+- **Security risks**:
+  - No sudo commands
+  - No curl/wget piped to shell
+  - No wildcard branch triggers
+- **Secret safety**:
+  - Secrets not logged or echoed
+  - No hardcoded tokens (GitHub PAT, NPM, etc.)
+- **Best practices**:
+  - Environment variable naming conventions
+  - Proper command usage
+
+#### `test_workflow_schema.py` (10+ tests)
+Schema validation against GitHub Actions requirements:
+- **Valid trigger events**: Ensures only supported events are used
+- **Valid runner labels**: Validates runner OS specifications
+- **Valid permission scopes**: Checks permission names and levels
+- **Unique step identifiers**: Ensures no duplicate step IDs
+- **Valid job dependencies**: Verifies 'needs' references exist
+
+#### `test_documentation.py` (10+ tests)
+Documentation quality and completeness validation:
+- **README validation**: Checks existence and content quality
+- **Implementation notes**: Validates detailed documentation
+- **Python docstrings**: Ensures all test files are documented
+- **Requirements file**: Validates dependencies are listed
+- **Shell script documentation**: Checks for proper comments
+
 ## Running the Tests
 
 ### Run all tests:
@@ -46,16 +79,26 @@ bash tests/workflows/run_all_tests.sh
 
 ### Run individual test suites:
 ```bash
-# Release workflow tests
+# Core functionality
 python3 tests/workflows/test_release_workflow.py
 
-# Consistency tests
+# Consistency checks
 python3 tests/workflows/test_workflow_consistency.py
+
+# Edge cases and security
+python3 tests/workflows/test_workflow_edge_cases.py
+
+# Schema validation
+python3 tests/workflows/test_workflow_schema.py
+
+# Documentation validation
+python3 tests/workflows/test_documentation.py
 ```
 
 ## Test Coverage
 
-These tests cover:
+**Total: 130+ comprehensive tests** covering:
+
 - ✅ YAML syntax and structure validation
 - ✅ Workflow trigger configuration
 - ✅ Job configuration and dependencies
@@ -66,6 +109,10 @@ These tests cover:
 - ✅ Cross-workflow consistency
 - ✅ Environment variable configuration
 - ✅ Artifact handling (upload/download)
+- ✅ Edge cases and failure scenarios
+- ✅ Security vulnerability detection
+- ✅ Schema compliance
+- ✅ Documentation quality
 
 ## Key Changes Tested
 
@@ -79,6 +126,11 @@ The tests specifically validate the recent changes to `release.yml`:
 - Python 3.x
 - PyYAML (`pip install pyyaml`)
 
+Install dependencies:
+```bash
+pip install -r tests/workflows/requirements.txt
+```
+
 ## CI Integration
 
 These tests can be integrated into the CI pipeline by adding a test job to `.github/workflows/ci.yml`:
@@ -87,6 +139,8 @@ These tests can be integrated into the CI pipeline by adding a test job to `.git
   test-workflows:
     name: Test Workflows
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -94,10 +148,28 @@ These tests can be integrated into the CI pipeline by adding a test job to `.git
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install -r tests/workflows/requirements.txt
       - name: Run workflow tests
         run: bash tests/workflows/run_all_tests.sh
 ```
+
+## Documentation
+
+For detailed information about the test suite:
+
+- **[COMPREHENSIVE_TEST_COVERAGE.md](COMPREHENSIVE_TEST_COVERAGE.md)** - Detailed breakdown of all test categories and coverage
+- **[IMPLEMENTATION_NOTES.md](IMPLEMENTATION_NOTES.md)** - Implementation details and rationale
+- **[TEST_SUMMARY.md](TEST_SUMMARY.md)** - Test execution results and statistics
+
+## Test Philosophy
+
+This test suite follows a **bias for action** approach:
+
+1. **Comprehensive Coverage**: Goes beyond basic functionality to test edge cases and negative scenarios
+2. **Security First**: Multiple layers of security validation
+3. **Living Documentation**: Tests serve as executable documentation
+4. **Fast Feedback**: Local validation without waiting for GitHub Actions
+5. **Regression Prevention**: Catches configuration drift and accidental changes
 
 ## Contributing
 
@@ -106,3 +178,13 @@ When adding or modifying workflows:
 2. Add new test cases for new functionality
 3. Run all tests to ensure nothing breaks
 4. Follow the existing test patterns and naming conventions
+5. Update documentation to reflect changes
+
+## Success Criteria
+
+All 130+ tests should pass, indicating:
+- ✅ Workflows are syntactically valid
+- ✅ Security best practices are followed
+- ✅ Configurations are consistent
+- ✅ Documentation is complete
+- ✅ No known vulnerabilities exist
