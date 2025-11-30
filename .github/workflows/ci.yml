@@ -67,17 +67,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Download PR coverage
+      - name: Download coverage
         uses: actions/download-artifact@v6
         with:
-          name: coverage-pull-request
+          name: coverage-${{ matrix.artifact }}
           path: coverage
 
-      - name: Download Main coverage
-        uses: actions/download-artifact@v6
-        with:
-          name: coverage-main
-          path: coverage-main
+      # - name: Download Main coverage
+      #   uses: actions/download-artifact@v6
+      #   with:
+      #     name: coverage-main
+      #     path: coverage-main
 
       - name: Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2
