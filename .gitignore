@@ -37,3 +37,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 build.ts
 .htmlvalidate.json
 bunup.config.ts
+# Python test cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
