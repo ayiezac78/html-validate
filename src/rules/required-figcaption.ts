@@ -25,6 +25,32 @@ export default class RequiredFigcaptionRule extends Rule {
 					message: "The <img> element is required for <figure> elements.",
 				});
 			}
+
+			if (target.tagName === "div") {
+				const hasImg = target.querySelector("img");
+				const hasCite = target.querySelector("cite");
+
+				if (hasImg && hasCite) {
+					this.report({
+						node: target,
+						message:
+							"Consider using <figure> with <figcaption> instead of <div> with <img> and <cite> for better semantic HTML.",
+					});
+				}
+			}
+
+			if (target.tagName === "figure") {
+				const hasImg = target.querySelector("img");
+				const hasCite = target.querySelector("cite");
+
+				if (hasImg && hasCite) {
+					this.report({
+						node: target,
+						message:
+							"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
+					});
+				}
+			}
 		});
 	}
 }

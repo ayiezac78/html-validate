@@ -16,11 +16,12 @@ env:
   HUSKY: 0
 
 jobs:
-  quality:
+  build:
     name: Lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
     steps:
       - id: checkout
         name: Checkout
@@ -41,3 +42,8 @@ jobs:
           version: latest
       - name: Run Biome
         run: biome ci
+      - name: Run tests
+        run: bun run test
+      - name: "Report Coverage"
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2

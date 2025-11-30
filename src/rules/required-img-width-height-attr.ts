@@ -10,34 +10,59 @@ export default class RequiredWidthHeightRule extends Rule {
 	}
 
 	public setup() {
-		this.on("element:ready", ({ target }) => {
-			if (target.tagName !== "img") {
-				return;
-			}
+		this.on("dom:ready", (event) => {
+			const { document } = event;
 
-			const width = target.getAttribute("width");
-			const height = target.getAttribute("height");
+			const images = document.getElementsByTagName("img");
 
-			switch (true) {
-				case !width && !height:
-					this.report({
-						node: target,
-						message:
-							"<img> element must have both 'width' and 'height' attributes.",
-					});
-					break;
-				case !width:
-					this.report({
-						node: target,
-						message: "<img> element is missing the 'width' attribute.",
-					});
-					break;
-				case !height:
-					this.report({
-						node: target,
-						message: "<img> element is missing the 'height' attribute.",
-					});
-					break;
+			for (const img of images) {
+				const width = img.getAttribute("width");
+				const height = img.getAttribute("height");
+
+				const hasValidWidth =
+					width && typeof width.value === "string" && width.value.trim() !== "";
+				const hasValidHeight =
+					height &&
+					typeof height.value === "string" &&
+					height.value.trim() !== "";
+
+				const srcValue = img.getAttributeValue("src");
+				const hasLegacyImageFmt =
+					typeof srcValue === "string" &&
+					/\.(png|jpe?g)(\?.*)?$/i.test(srcValue);
+				const hasModernImageFmt =
+					typeof srcValue === "string" &&
+					/\.(webp|avif)(\?.*)?$/i.test(srcValue);
+				switch (true) {
+					case !hasValidWidth && !hasValidHeight:
+						this.report({
+							node: img,
+							message:
+								"<img> element must have both 'width' and 'height' attributes.",
+						});
+						break;
+					case !hasValidWidth:
+						this.report({
+							node: img,
+							message: "<img> element is missing the 'width' attribute.",
+						});
+						break;
+					case !hasValidHeight:
+						this.report({
+							node: img,
+							message: "<img> element is missing the 'height' attribute.",
+						});
+						break;
+					case hasLegacyImageFmt && !hasModernImageFmt:
+						this.report({
+							node: img,
+							message:
+								"Use modern image formats like WebP or AVIF instead of PNG/JPG/JPEG for better performance.",
+						});
+						break;
+					default:
+						break;
+				}
 			}
 		});
 	}

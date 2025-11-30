@@ -23,10 +23,6 @@ export default class NoBrBetweenElementsRule extends Rule {
 
 			/* report errors */
 			for (const br of brElements) {
-				const parent = br.parent;
-
-				if (!parent) continue;
-
 				const prev = this.getPrevMeaningful(br) as HtmlElement;
 				const next = this.getNextMeaningful(br) as HtmlElement;
 
@@ -56,8 +52,9 @@ export default class NoBrBetweenElementsRule extends Rule {
 		});
 	}
 
-	private getPrevMeaningful(node: HtmlElement) {
+	public getPrevMeaningful(node: HtmlElement) {
 		const parent = node.parent;
+
 		if (!parent) return null;
 
 		const children = parent.childNodes;
@@ -72,8 +69,9 @@ export default class NoBrBetweenElementsRule extends Rule {
 		return null;
 	}
 
-	private getNextMeaningful(node: HtmlElement) {
+	public getNextMeaningful(node: HtmlElement) {
 		const parent = node.parent;
+
 		if (!parent) return null;
 
 		const children = parent.childNodes;
