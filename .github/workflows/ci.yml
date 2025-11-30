@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,21 +20,17 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - id: setup-bun
-        name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - id: install-deps
-        name: Install dependencies
+      - name: Install dependencies
         run: bun ci
+
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
@@ -48,32 +42,45 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
-      - name: "Test"
-        run: npx vitest --coverage.enabled true
-      - name: "Upload Coverage"
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun ci
+
+      - name: Run Vitest With Coverage
+        run: bunx vitest --coverage.enabled true
+
+      - name: Upload Coverage
         uses: actions/upload-artifact@v5
         with:
-          name: coverage-${{ matrix.artifact }}
+          name: ${{ github.event_name == 'pull_request' && 'coverage-pull-request' || 'coverage-main' }}
           path: coverage
 
   report-coverage:
+    if: github.event_name == 'pull_request'
     needs: test
     runs-on: ubuntu-latest
+
     steps:
-      ## Check out the repository to obtain the vitest.config file
       - uses: actions/checkout@v5
-      - name: "Download Coverage Artifacts"
+
+      - name: Download PR coverage
         uses: actions/download-artifact@v6
         with:
           name: coverage-pull-request
           path: coverage
-      - uses: actions/download-artifact@v6
+
+      - name: Download Main coverage
+        uses: actions/download-artifact@v6
         with:
           name: coverage-main
           path: coverage-main
-      - name: "Report Coverage"
+
+      - name: Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           json-summary-compare-path: coverage-main/coverage-summary.json
