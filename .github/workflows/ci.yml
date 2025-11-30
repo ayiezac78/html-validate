@@ -57,11 +57,10 @@ jobs:
       - name: Upload Coverage
         uses: actions/upload-artifact@v5
         with:
-          name: ${{ github.event_name == 'pull_request' && 'coverage-pull-request' || 'coverage-main' }}
+          name: coverage-${{ matrix.artifact }}
           path: coverage
 
   report-coverage:
-    if: github.event_name == 'pull_request'
     needs: test
     runs-on: ubuntu-latest
 
