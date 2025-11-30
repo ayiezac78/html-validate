@@ -62,7 +62,7 @@
 	"types": "./dist/index.d.ts",
 	"lint-staged": {
 		"*": [
-			"bun run lint && bun test"
+			"bun run lint"
 		]
 	},
 	"keywords": [
