@@ -11,10 +11,6 @@ export default class RequiredWidthHeightRule extends Rule {
 
 	public setup() {
 		this.on("element:ready", ({ target }) => {
-			if (target.tagName !== "img") {
-				return;
-			}
-
 			const width = target.getAttribute("width");
 			const height = target.getAttribute("height");
 
@@ -24,6 +20,12 @@ export default class RequiredWidthHeightRule extends Rule {
 				height &&
 				typeof height.value === "string" &&
 				height.value.trim() !== "";
+
+			const srcValue = target.getAttributeValue("src");
+
+			const hasModernImageFmt = /\.(webp|avif)(\?.*)?$/i.test(
+				srcValue as string,
+			);
 
 			switch (true) {
 				case !hasValidWidth && !hasValidHeight:
@@ -45,11 +47,14 @@ export default class RequiredWidthHeightRule extends Rule {
 						message: "<img> element is missing the 'height' attribute.",
 					});
 					break;
-				case height?.value === null:
+				case !hasModernImageFmt:
 					this.report({
 						node: target,
-						message: "'height' attribute value must not be empty.",
+						message:
+							"Use modern image formats like WebP or AVIF instead of PNG/JPG/JPEG for better performance.",
 					});
+					break;
+				default:
 					break;
 			}
 		});

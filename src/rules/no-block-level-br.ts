@@ -55,7 +55,9 @@ export default class NoBrBetweenElementsRule extends Rule {
 	private getPrevMeaningful(node: HtmlElement) {
 		const parent = node.parent;
 
-		const children = parent!.childNodes;
+		if (parent === null) return null;
+
+		const children = parent?.childNodes;
 		let i = children.indexOf(node) - 1;
 
 		while (i >= 0) {
@@ -70,7 +72,9 @@ export default class NoBrBetweenElementsRule extends Rule {
 	private getNextMeaningful(node: HtmlElement) {
 		const parent = node.parent;
 
-		const children = parent!.childNodes;
+		if (parent === null) return null;
+
+		const children = parent?.childNodes;
 		let i = children.indexOf(node) + 1;
 
 		while (i < children.length) {

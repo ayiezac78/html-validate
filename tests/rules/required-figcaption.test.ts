@@ -78,7 +78,7 @@ describe("required-figcaption", () => {
 		expect(report).toBeInvalid();
 		expect(report).toHaveError(
 			"required-figcaption",
-			"The <figcaption> element is required for <figure> elements.",
+			"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
 		);
 	});
 
@@ -94,19 +94,18 @@ describe("required-figcaption", () => {
 		expect(report).toBeValid();
 	});
 
-	it("should report error when figure contains cite instead of figcaption", () => {
+	it("should report error when figcaption is missing", () => {
 		const html = `
-      <figure class="img-caption">
-        <img src="test.jpg" alt="Test">
-        <cite>Photo credit</cite>
-      </figure>
-    `;
+	    <figure class="img-caption">
+	      <img src="test.jpg" alt="Test">
+	    </figure>
+	  `;
 
 		const report = htmlvalidate.validateString(html);
 		expect(report).toBeInvalid();
 		expect(report).toHaveError(
 			"required-figcaption",
-			"Use <figcaption> instead of <cite> for image captions within <figure> elements.",
+			"The <figcaption> element is required for <figure> elements.",
 		);
 	});
 });
