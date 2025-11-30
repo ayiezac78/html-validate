@@ -54,6 +54,11 @@ jobs:
           name: build-output
           path: ./dist
 
+      - name: Setup .npmrc
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+
       - name: Publish to npm
         run: bunx npm publish --access public
         env:
