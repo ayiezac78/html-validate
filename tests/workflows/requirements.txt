@@ -1,0 +1,2 @@
+# Python dependencies for GitHub Actions workflow tests
+PyYAML>=6.0
