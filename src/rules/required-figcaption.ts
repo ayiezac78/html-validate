@@ -42,8 +42,9 @@ export default class RequiredFigcaptionRule extends Rule {
 			if (target.tagName === "figure") {
 				const hasImg = target.querySelector("img");
 				const hasCite = target.querySelector("cite");
+				const hasFigcaption = target.querySelector("figcaption");
 
-				if (hasImg && hasCite) {
+				if (hasImg && hasCite && !hasFigcaption) {
 					this.report({
 						node: target,
 						message:

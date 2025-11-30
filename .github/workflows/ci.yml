@@ -43,7 +43,7 @@ jobs:
       - name: Run Biome
         run: biome ci
       - name: Run tests
-        run: bun run test
+        run: bun run test:coverage
       - name: "Report Coverage"
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
