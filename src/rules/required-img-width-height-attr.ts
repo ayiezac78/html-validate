@@ -27,6 +27,9 @@ export default class RequiredWidthHeightRule extends Rule {
 					height.value.trim() !== "";
 
 				const srcValue = img.getAttributeValue("src");
+				const hasLegacyImageFmt =
+					typeof srcValue === "string" &&
+					/\.(png|jpe?g)(\?.*)?$/i.test(srcValue);
 				const hasModernImageFmt =
 					typeof srcValue === "string" &&
 					/\.(webp|avif)(\?.*)?$/i.test(srcValue);
@@ -50,7 +53,7 @@ export default class RequiredWidthHeightRule extends Rule {
 							message: "<img> element is missing the 'height' attribute.",
 						});
 						break;
-					case !hasModernImageFmt:
+					case hasLegacyImageFmt && !hasModernImageFmt:
 						this.report({
 							node: img,
 							message:
