@@ -10,12 +10,32 @@ from pathlib import Path
 
 class WorkflowTestRunner:
     def __init__(self):
+        """
+        Initialize a WorkflowTestRunner instance and set up counters and storage for test results.
+        
+        Attributes:
+            tests_passed (int): Number of tests that have passed, initialized to 0.
+            tests_failed (int): Number of tests that have failed, initialized to 0.
+            failures (list[str]): Collected failure messages, initialized as an empty list.
+        """
         self.tests_passed = 0
         self.tests_failed = 0
         self.failures = []
 
     def assert_equal(self, actual, expected, test_name):
-        """Assert that two values are equal"""
+        """
+        Check that two values are equal and record the outcome on the runner.
+        
+        Increments the runner's pass or fail counters, prints a brief pass/fail message, and on failure appends a formatted failure message to `self.failures`.
+        
+        Parameters:
+            actual: The observed value to compare.
+            expected: The expected value to compare against.
+            test_name (str): A short description of the assertion used in printed and recorded messages.
+        
+        Returns:
+            bool: `True` if `actual == expected`, `False` otherwise.
+        """
         if actual == expected:
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -28,7 +48,19 @@ class WorkflowTestRunner:
             return False
 
     def assert_in(self, item, container, test_name):
-        """Assert that item is in container"""
+        """
+        Check whether `item` is present in `container` and record the assertion result on the runner.
+        
+        If the check succeeds, increments `tests_passed`; if it fails, increments `tests_failed` and appends a message to `failures`. Also prints a brief pass/fail message.
+        
+        Parameters:
+            item: The value to look for in `container`.
+            container: A collection or mapping to search for `item`.
+            test_name (str): A short description used in printed and recorded messages.
+        
+        Returns:
+            bool: `True` if `item` is in `container`, `False` otherwise.
+        """
         if item in container:
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -41,7 +73,19 @@ class WorkflowTestRunner:
             return False
 
     def assert_true(self, condition, test_name):
-        """Assert that condition is true"""
+        """
+        Check that a condition is true and record the result in the test runner.
+        
+        Parameters:
+            condition: The boolean expression to evaluate.
+            test_name (str): A descriptive name used in pass/fail output.
+        
+        Returns:
+            True if `condition` is true, False otherwise.
+        
+        Notes:
+            On success increments `tests_passed` and prints a pass line. On failure increments `tests_failed`, appends a failure message to `failures`, and prints a fail line.
+        """
         if condition:
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -54,7 +98,20 @@ class WorkflowTestRunner:
             return False
 
     def assert_isinstance(self, obj, cls, test_name):
-        """Assert that obj is an instance of cls"""
+        """
+        Check whether `obj` is an instance of `cls` and record the result with the runner.
+        
+        If the check passes, increments the runner's passed count and prints a passing message.
+        If the check fails, increments the runner's failed count, prints a failure message, and appends a failure description to the runner's failures list.
+        
+        Parameters:
+            obj: The object to test.
+            cls: A type or tuple of types to check against.
+            test_name (str): A short description used in printed pass/fail messages.
+        
+        Returns:
+            bool: `True` if `obj` is an instance of `cls`, `false` otherwise.
+        """
         if isinstance(obj, cls):
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -67,7 +124,14 @@ class WorkflowTestRunner:
             return False
 
     def print_summary(self):
-        """Print test summary"""
+        """
+        Prints a formatted test report to standard output and returns a process-style exit code.
+        
+        The report includes counts of passed and failed tests and lists failure messages when present.
+        
+        Returns:
+            int: 0 if all tests passed, 1 if one or more tests failed.
+        """
         total = self.tests_passed + self.tests_failed
         print("\n" + "="*70)
         print(f"TEST SUMMARY: {self.tests_passed}/{total} tests passed")
@@ -82,7 +146,14 @@ class WorkflowTestRunner:
 
 
 def load_workflow():
-    """Load and parse the release workflow YAML file"""
+    """
+    Load and parse the release workflow YAML from .github/workflows/release.yml.
+    
+    Parses the workflow file into Python native structures while preserving the special handling for the top-level `on` trigger key.
+    
+    Returns:
+        dict: The parsed workflow YAML as a Python mapping.
+    """
     workflow_path = Path('.github/workflows/release.yml')
     
     # Load with custom loader to preserve 'on' keyword
@@ -91,6 +162,16 @@ def load_workflow():
     
     # Override the default behavior for 'on'
     def on_constructor(loader, node):
+        """
+        Treat the provided YAML mapping node as a standard mapping and return its constructed mapping.
+        
+        Parameters:
+            loader (yaml.Loader): The YAML loader instance performing construction.
+            node (yaml.Node): The YAML mapping node to construct.
+        
+        Returns:
+            dict: A Python mapping representing the constructed contents of `node`.
+        """
         return loader.construct_mapping(node)
     
     PreserveOnLoader.add_constructor('tag:yaml.org,2002:bool', 
@@ -103,7 +184,15 @@ def load_workflow():
 
 
 def test_workflow_structure(runner, workflow):
-    """Test basic workflow structure"""
+    """
+    Verify the release workflow contains required top-level sections.
+    
+    Asserts that the workflow's name is 'Release' and that top-level keys for triggers, jobs, and env are present. Note: some YAML loaders may represent the trigger configuration using the key 'on' or the boolean True.
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to record assertions and results.
+        workflow (dict): Parsed workflow YAML as a dictionary.
+    """
     print("\n--- Testing Workflow Structure ---")
     
     runner.assert_equal(workflow['name'], 'Release', 
@@ -122,7 +211,18 @@ def test_workflow_structure(runner, workflow):
 
 
 def test_workflow_triggers(runner, workflow):
-    """Test workflow trigger configuration"""
+    """
+    Verify the workflow's trigger configuration for release, push (tag pattern), and manual dispatch.
+    
+    Checks that the workflow contains a trigger mapping (under 'on' or the boolean True, to accommodate a PyYAML parsing quirk), and that:
+    - a 'release' trigger exists with types including 'published' when present,
+    - a 'push' trigger exists with a tags filter that includes the semver pattern 'v*.*.*',
+    - a 'workflow_dispatch' manual trigger exists.
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to record assertions and failures.
+        workflow (dict): Parsed GitHub Actions workflow dictionary to validate.
+    """
     print("\n--- Testing Workflow Triggers ---")
     
     # Handle both 'on' and True as keys (PyYAML quirk)
@@ -155,7 +255,11 @@ def test_workflow_triggers(runner, workflow):
 
 
 def test_environment_variables(runner, workflow):
-    """Test environment variable configuration"""
+    """
+    Verify that the workflow's top-level environment sets HUSKY to 0.
+    
+    Asserts that the workflow's `env` mapping contains the key `HUSKY` with the value 0.
+    """
     print("\n--- Testing Environment Variables ---")
     
     env = workflow.get('env', {})
@@ -165,7 +269,19 @@ def test_environment_variables(runner, workflow):
 
 
 def test_build_job_configuration(runner, workflow):
-    """Test build job configuration"""
+    """
+    Verify the 'build' job in the workflow contains required configuration and permissions.
+    
+    Checks that:
+    - a 'build' job exists under `jobs`;
+    - the job's `runs-on` is 'ubuntu-latest';
+    - a `permissions` mapping is present and is a dictionary with `contents` equal to 'read' (if present);
+    - the job defines `steps`.
+    
+    Parameters:
+        runner: WorkflowTestRunner instance used to record test assertions.
+        workflow (dict): Parsed workflow YAML as a Python dictionary.
+    """
     print("\n--- Testing Build Job Configuration ---")
     
     jobs = workflow['jobs']
@@ -193,7 +309,21 @@ def test_build_job_configuration(runner, workflow):
 
 
 def test_build_job_steps(runner, workflow):
-    """Test build job steps"""
+    """
+    Validate the steps of the `build` job in the release workflow.
+    
+    Performs a set of assertions that the build job:
+    - defines `steps` as a list with at least three entries,
+    - begins with `actions/checkout@v5`,
+    - includes a `oven-sh/setup-bun@v2` step with a `with` block and `bun-version` set to "latest",
+    - runs the commands `bun ci` and `bun run build`,
+    - uploads build artifacts using `actions/upload-artifact` with `name` "build-output" and `path` "./dist".
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to record assertions and failures.
+        workflow (dict): Parsed workflow YAML as a dictionary representing the release workflow.
+    
+    """
     print("\n--- Testing Build Job Steps ---")
     
     build_job = workflow['jobs']['build']
@@ -255,7 +385,18 @@ def test_build_job_steps(runner, workflow):
 
 
 def test_publish_job_configuration(runner, workflow):
-    """Test publish job configuration"""
+    """
+    Verify the publish job's configuration in the parsed workflow.
+    
+    Checks that the workflow contains a 'publish' job which:
+    - runs on 'ubuntu-latest'
+    - declares a 'needs' dependency that references 'build' (string or list)
+    - defines a 'permissions' mapping with 'contents' set to 'write' and 'packages' set to 'write'
+    
+    Parameters:
+        runner: Test runner instance used to record assertions (optional for most callers).
+        workflow (dict): Parsed YAML workflow dictionary returned by load_workflow().
+    """
     print("\n--- Testing Publish Job Configuration ---")
     
     jobs = workflow['jobs']
@@ -294,7 +435,15 @@ def test_publish_job_configuration(runner, workflow):
 
 
 def test_publish_job_steps(runner, workflow):
-    """Test publish job steps"""
+    """
+    Verify the publish job's step sequence and required step configurations.
+    
+    This test asserts that the publish job defines a list of steps with at least four entries, downloads build artifacts with the expected name and path, and contains a publish step that runs the npm publish command via `bunx` with the `--access public` flag and exposes the `NPM_TOKEN` environment variable.
+    
+    Parameters:
+        runner: WorkflowTestRunner used to record assertions and test results.
+        workflow (dict): Parsed workflow YAML as a dictionary; the function inspects workflow['jobs']['publish'] for validation.
+    """
     print("\n--- Testing Publish Job Steps ---")
     
     publish_job = workflow['jobs']['publish']
@@ -346,7 +495,17 @@ def test_publish_job_steps(runner, workflow):
 
 
 def test_permissions_principle_of_least_privilege(runner, workflow):
-    """Test that permissions follow principle of least privilege"""
+    """
+    Verify workflow jobs' permissions adhere to the principle of least privilege.
+    
+    Checks (when a job's `permissions` key is present):
+    - For the `build` job: asserts `contents` includes `read` and does not include `write`.
+    - For the `publish` job: asserts `contents` equals `write` and `packages` equals `write`.
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to record assertion results.
+        workflow (dict): Parsed workflow YAML as a dictionary.
+    """
     print("\n--- Testing Security: Principle of Least Privilege ---")
     
     jobs = workflow['jobs']
@@ -371,7 +530,12 @@ def test_permissions_principle_of_least_privilege(runner, workflow):
 
 
 def test_workflow_yaml_validity(runner, workflow):
-    """Test that the workflow YAML is valid and well-formed"""
+    """
+    Verify the parsed workflow YAML represents a non-empty dictionary that contains required top-level keys and a trigger configuration.
+    
+    Parameters:
+        workflow (dict): Parsed YAML content of the workflow file.
+    """
     print("\n--- Testing YAML Validity ---")
     
     runner.assert_isinstance(workflow, dict,
@@ -392,7 +556,16 @@ def test_workflow_yaml_validity(runner, workflow):
 
 
 def test_job_isolation_and_dependencies(runner, workflow):
-    """Test job dependencies and isolation"""
+    """
+    Verify job isolation and required dependencies in the workflow.
+    
+    Asserts that the `build` job does not declare a `needs` dependency (so it can run first)
+    and that the `publish` job declares `needs` (indicating it depends on prior jobs).
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to record assertions and results.
+        workflow (dict): Parsed workflow YAML as a dictionary.
+    """
     print("\n--- Testing Job Dependencies and Isolation ---")
     
     jobs = workflow['jobs']
@@ -434,7 +607,15 @@ def test_action_versions_pinning(runner, workflow):
 
 
 def test_secret_handling(runner, workflow):
-    """Test proper secret handling"""
+    """
+    Verifies that any environment values referencing secrets use the GitHub Actions secret interpolation syntax.
+    
+    Scans each job's steps in the provided workflow and, for any environment value that contains the substring 'secrets.', asserts that the value includes the literal '${{' and '}}' wrapper.
+    
+    Parameters:
+        runner (WorkflowTestRunner): Test runner used to report assertions.
+        workflow (dict): Parsed workflow YAML as a dictionary.
+    """
     print("\n--- Testing Secret Handling ---")
     
     jobs = workflow['jobs']
@@ -453,7 +634,14 @@ def test_secret_handling(runner, workflow):
 
 
 def run_all_tests():
-    """Run all workflow tests"""
+    """
+    Run the full suite of workflow tests and print a summary.
+    
+    Loads the release workflow, executes all test functions in a fixed sequence, prints per-test output and a summary, and handles common errors (missing file, YAML parse errors, unexpected exceptions).
+    
+    Returns:
+        int: Exit code where `0` indicates all tests passed and non-zero (`1`) indicates one or more failures or an error.
+    """
     runner = WorkflowTestRunner()
     
     try:

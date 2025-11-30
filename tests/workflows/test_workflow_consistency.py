@@ -11,12 +11,34 @@ from pathlib import Path
 
 class ConsistencyTestRunner:
     def __init__(self):
+        """
+        Initialize a ConsistencyTestRunner instance to track test results and messages.
+        
+        Creates counters and collections used by the runner:
+        - tests_passed: number of tests that passed (int).
+        - tests_failed: number of tests that failed (int).
+        - failures: list of failure message strings.
+        - warnings: list of warning message strings.
+        """
         self.tests_passed = 0
         self.tests_failed = 0
         self.failures = []
         self.warnings = []
 
     def assert_equal(self, actual, expected, test_name):
+        """
+        Assert that two values are equal and record the result in the runner.
+        
+        Increments the runner's pass or fail counters, prints a PASS or FAIL message, and on failure appends a formatted failure message to the runner's `failures` list.
+        
+        Parameters:
+            actual: The observed value produced by the code under test.
+            expected: The value expected for the test to pass.
+            test_name (str): A short human-readable name describing the test.
+        
+        Returns:
+            bool: `True` if `actual` equals `expected`, `False` otherwise.
+        """
         if actual == expected:
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -29,6 +51,16 @@ class ConsistencyTestRunner:
             return False
 
     def assert_true(self, condition, test_name):
+        """
+        Record a boolean test outcome, print a pass/fail message, and update the runner's counters and records.
+        
+        Parameters:
+        	condition (bool): The boolean condition representing the test result.
+        	test_name (str): Human-readable name of the test used in printed output and failure records.
+        
+        Returns:
+        	bool: `True` if `condition` is true (test counted as passed), `False` otherwise. Side effects: increments `tests_passed` or `tests_failed`, prints a pass or fail message, and appends a failure message to `failures` when the condition is false.
+        """
         if condition:
             self.tests_passed += 1
             print(f"✓ PASS: {test_name}")
@@ -41,11 +73,26 @@ class ConsistencyTestRunner:
             return False
 
     def warn(self, message):
-        """Add a warning that doesn't fail the test"""
+        """
+        Record a non-fatal warning for the test run.
+        
+        Appends `message` to the runner's warnings list and prints a formatted warning line to standard output.
+        
+        Parameters:
+            message (str): Human-readable warning text to record and display.
+        """
         self.warnings.append(message)
         print(f"⚠ WARNING: {message}")
 
     def print_summary(self):
+        """
+        Print a concise test summary to stdout and return an exit code.
+        
+        Prints total passed/failed counts, lists any warnings, and prints failure details when present.
+        
+        Returns:
+            int: 0 if all tests passed, 1 if any test failed.
+        """
         total = self.tests_passed + self.tests_failed
         print("\n" + "="*70)
         print(f"TEST SUMMARY: {self.tests_passed}/{total} tests passed")
@@ -82,7 +129,14 @@ def load_workflows():
 
 
 def test_consistent_permissions_usage(runner, ci_workflow, release_workflow):
-    """Test that both workflows use permissions consistently"""
+    """
+    Verify every job in the CI and Release workflows defines a `permissions` section.
+    
+    Parameters:
+    	runner (ConsistencyTestRunner): Test runner used to record passes, failures, and warnings.
+    	ci_workflow (dict): Parsed CI workflow YAML mapping (from yaml.safe_load).
+    	release_workflow (dict): Parsed Release workflow YAML mapping (from yaml.safe_load).
+    """
     print("\n--- Testing Consistent Permissions Usage ---")
     
     # Both workflows should define permissions at job level
@@ -101,7 +155,15 @@ def test_consistent_permissions_usage(runner, ci_workflow, release_workflow):
 
 
 def test_consistent_runner_os(runner, ci_workflow, release_workflow):
-    """Test that workflows use consistent runner OS"""
+    """
+    Verify all jobs in the CI and Release workflows use the expected runner OS.
+    
+    For each job in both workflows, assert that the job's `runs-on` value equals 'ubuntu-latest'.
+    Parameters:
+        runner (ConsistencyTestRunner): Test runner used to record assertions and results.
+        ci_workflow (dict): Parsed CI workflow YAML as a dictionary.
+        release_workflow (dict): Parsed Release workflow YAML as a dictionary.
+    """
     print("\n--- Testing Consistent Runner OS ---")
     
     ci_jobs = ci_workflow.get('jobs', {})
@@ -119,7 +181,11 @@ def test_consistent_runner_os(runner, ci_workflow, release_workflow):
 
 
 def test_consistent_environment_variables(runner, ci_workflow, release_workflow):
-    """Test that workflows use consistent environment variables"""
+    """
+    Verify that both CI and Release workflows disable Husky by setting the HUSKY environment variable to 0.
+    
+    Checks the top-level `env` mapping of each workflow and asserts that `HUSKY` equals 0 in both the CI and Release workflows.
+    """
     print("\n--- Testing Consistent Environment Variables ---")
     
     ci_env = ci_workflow.get('env', {})
@@ -133,11 +199,31 @@ def test_consistent_environment_variables(runner, ci_workflow, release_workflow)
 
 
 def test_consistent_action_versions(runner, ci_workflow, release_workflow):
-    """Test that both workflows use consistent action versions where applicable"""
+    """
+    Verify action versions are consistent between CI and Release workflows for comparable actions.
+    
+    Collects the actions referenced in each workflow and, for actions present in both workflows, enforces:
+    - If each workflow references exactly one version for the action, assert the versions are equal.
+    - If the single-version values differ, record a warning but do not fail the test.
+    Actions that appear with multiple versions within a workflow are not strictly compared.
+    
+    Parameters:
+        runner: ConsistencyTestRunner used to record assertions and warnings.
+        ci_workflow (dict): Parsed CI workflow YAML as a dictionary.
+        release_workflow (dict): Parsed Release workflow YAML as a dictionary.
+    """
     print("\n--- Testing Consistent Action Versions ---")
     
     def get_action_versions(workflow):
-        """Extract action versions from workflow"""
+        """
+        Collects action names and their versions used in a workflow.
+        
+        Parameters:
+            workflow (dict): Parsed GitHub Actions workflow (as loaded from YAML).
+        
+        Returns:
+            dict: Mapping from action reference (e.g., "actions/checkout") to a list of version strings observed for that action in the workflow. If a step uses an action without an explicit version, the list will include `None` for that occurrence.
+        """
         actions = {}
         for job_name, job_config in workflow.get('jobs', {}).items():
             for step in job_config.get('steps', []):
@@ -176,11 +262,23 @@ def test_consistent_action_versions(runner, ci_workflow, release_workflow):
 
 
 def test_consistent_setup_patterns(runner, ci_workflow, release_workflow):
-    """Test that both workflows follow consistent setup patterns"""
+    """
+    Verify both CI and Release workflows include standard setup steps.
+    
+    Checks that at least one job in each workflow contains an `actions/checkout` step and an `oven-sh/setup-bun` step.
+    """
     print("\n--- Testing Consistent Setup Patterns ---")
     
     def has_checkout_step(workflow):
-        """Check if workflow has checkout step"""
+        """
+        Determine whether any job in the workflow includes an actions/checkout step.
+        
+        Parameters:
+            workflow (dict): Parsed GitHub Actions workflow mapping (as loaded from YAML).
+        
+        Returns:
+            bool: `True` if at least one job contains a step that uses `actions/checkout`, `False` otherwise.
+        """
         for job_name, job_config in workflow.get('jobs', {}).items():
             for step in job_config.get('steps', []):
                 if 'uses' in step and 'actions/checkout' in step['uses']:
@@ -188,7 +286,15 @@ def test_consistent_setup_patterns(runner, ci_workflow, release_workflow):
         return False
     
     def has_bun_setup(workflow):
-        """Check if workflow has bun setup"""
+        """
+        Determine whether any job in the workflow includes the oven-sh/setup-bun action.
+        
+        Parameters:
+            workflow (dict): Parsed GitHub Actions workflow data (mapping from keys to values).
+        
+        Returns:
+            bool: `True` if at least one step in any job uses the `oven-sh/setup-bun` action, `False` otherwise.
+        """
         for job_name, job_config in workflow.get('jobs', {}).items():
             for step in job_config.get('steps', []):
                 if 'uses' in step and 'oven-sh/setup-bun' in step['uses']:
@@ -207,11 +313,33 @@ def test_consistent_setup_patterns(runner, ci_workflow, release_workflow):
 
 
 def test_permissions_follow_least_privilege(runner, ci_workflow, release_workflow):
-    """Test that all jobs follow principle of least privilege"""
+    """
+    Verify that jobs in both CI and Release workflows adhere to the principle of least privilege.
+    
+    Checks each job's `permissions` mapping and, when a job's `contents` permission is set to "read",
+    asserts that the job does not grant `packages: write` except for jobs named "publish".
+    
+    Parameters:
+        runner: ConsistencyTestRunner used to record assertions and warnings.
+        ci_workflow (dict): Parsed CI workflow YAML as a mapping.
+        release_workflow (dict): Parsed Release workflow YAML as a mapping.
+    """
     print("\n--- Testing Least Privilege Principle Across Workflows ---")
     
     def check_read_only_permissions(job_config, job_name, workflow_name):
-        """Check if job has read-only permissions where appropriate"""
+        """
+        Validate least-privilege permissions for a job's permissions section.
+        
+        If the job defines `permissions` and `permissions['contents']` is "read", assert that
+        `permissions['packages']` is not "write" unless the job name is "publish". Failures are
+        reported via the test runner (using the surrounding `runner`), which records a test
+        failure and message when the check does not hold.
+        
+        Parameters:
+            job_config (dict): The job's configuration mapping from the workflow YAML.
+            job_name (str): The name of the job (used in failure messages).
+            workflow_name (str): The name of the workflow (used in failure messages).
+        """
         if 'permissions' in job_config:
             perms = job_config['permissions']
             # Jobs that only read should not have write permissions
@@ -233,11 +361,28 @@ def test_permissions_follow_least_privilege(runner, ci_workflow, release_workflo
 
 
 def test_no_hardcoded_secrets(runner, ci_workflow, release_workflow):
-    """Test that workflows don't contain hardcoded secrets"""
+    """
+    Detects potential hardcoded secret patterns in CI and Release workflow YAML and asserts they reference secrets.
+    
+    Scans both provided workflow objects for case-insensitive occurrences of common secret-related keys (for example, "password:", "token:", "api_key:", "secret:"). For any match, asserts via the runner that the workflow contains a secret reference (such as "secrets." or a GitHub Actions expression like "${{") instead of a hardcoded value.
+    
+    Parameters:
+        runner: ConsistencyTestRunner used to record assertions and warnings.
+        ci_workflow: Parsed CI workflow YAML (as a Python dict).
+        release_workflow: Parsed Release workflow YAML (as a Python dict).
+    """
     print("\n--- Testing No Hardcoded Secrets ---")
     
     def check_no_hardcoded_secrets(workflow, workflow_name):
-        """Check workflow YAML for potential hardcoded secrets"""
+        """
+        Scan a workflow object for likely hardcoded secret patterns and assert they are referenced securely.
+        
+        Checks the serialized YAML of `workflow` for common secret-like keys such as "password:", "token:", "api_key:", and "secret:". For any match, asserts that the occurrence is a reference to GitHub secrets or expressions (contains "secrets." or "${{") rather than a literal value.
+        
+        Parameters:
+            workflow (dict): Parsed workflow YAML as a Python mapping.
+            workflow_name (str): Human-readable name used in test messages when reporting failures.
+        """
         workflow_str = yaml.dump(workflow)
         
         # Check for common secret patterns
@@ -261,7 +406,14 @@ def test_no_hardcoded_secrets(runner, ci_workflow, release_workflow):
 
 
 def test_concurrency_control(runner, ci_workflow, release_workflow):
-    """Test concurrency control configuration"""
+    """
+    Verify the CI workflow defines concurrency control and that it includes required keys.
+    
+    Parameters:
+        runner (ConsistencyTestRunner): Test runner used to record assertions and warnings.
+        ci_workflow (dict): Parsed CI workflow YAML as a dictionary; must contain a 'concurrency' mapping.
+        release_workflow (dict): Parsed Release workflow YAML as a dictionary (not used by this test).
+    """
     print("\n--- Testing Concurrency Control ---")
     
     # CI workflow should have concurrency control
@@ -277,7 +429,16 @@ def test_concurrency_control(runner, ci_workflow, release_workflow):
 
 
 def test_permissions_added_to_build_job(runner, ci_workflow, release_workflow):
-    """Test that the build job in release workflow has the new permissions"""
+    """
+    Verify the Release workflow's build job defines appropriate least-privilege permissions.
+    
+    Checks that the 'build' job in the provided release workflow has a 'permissions' section,
+    that its 'contents' permission is set to 'read', and that no 'write' permission is present.
+    
+    Parameters:
+        runner: ConsistencyTestRunner used to record assertions and warnings.
+        release_workflow (dict): Parsed Release workflow YAML as a dictionary.
+    """
     print("\n--- Testing Build Job Permissions (New Change) ---")
     
     release_jobs = release_workflow.get('jobs', {})
@@ -295,7 +456,14 @@ def test_permissions_added_to_build_job(runner, ci_workflow, release_workflow):
 
 
 def run_all_tests():
-    """Run all consistency tests"""
+    """
+    Execute the full suite of workflow consistency tests and summarize results.
+    
+    Runs all defined consistency checks against the CI and Release GitHub workflow files, prints a human-readable report, and returns a process-style exit code.
+    
+    Returns:
+        int: 0 if all tests passed; 1 if any test failed or on error (missing files, YAML parse error, or other unexpected exceptions).
+    """
     runner = ConsistencyTestRunner()
     
     try:
