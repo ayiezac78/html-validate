@@ -33,6 +33,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
       - id: install-deps
         name: Install dependencies
         run: bun ci
@@ -40,10 +41,34 @@ jobs:
         uses: biomejs/setup-biome@v2
         with:
           version: latest
+
       - name: Run Biome
         run: biome ci
-      - name: Run tests
-        run: bun run test:coverage
+
+      - name: "Test"
+        run: npx vitest --coverage.enabled true
+      - name: "Upload Coverage"
+        uses: actions/upload-artifact@v5
+        with:
+          name: coverage-${{ matrix.artifact }}
+          path: coverage
+
+  report-coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      ## Check out the repository to obtain the vitest.config file
+      - uses: actions/checkout@v5
+      - name: "Download Coverage Artifacts"
+        uses: actions/download-artifact@v6
+        with:
+          name: coverage-pull-request
+          path: coverage
+      - uses: actions/download-artifact@v6
+        with:
+          name: coverage-main
+          path: coverage-main
       - name: "Report Coverage"
-        if: always()
         uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          json-summary-compare-path: coverage-main/coverage-summary.json
