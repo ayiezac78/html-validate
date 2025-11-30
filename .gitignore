@@ -8,7 +8,6 @@ dist
 
 # code coverage
 coverage
-*.lcov
 
 # logs
 logs
@@ -36,7 +35,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # custom ignore files
 build.ts
 .htmlvalidate.json
-bunup.config.ts
 
-coverage/
 html/
