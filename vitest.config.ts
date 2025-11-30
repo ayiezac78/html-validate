@@ -22,7 +22,7 @@ export default defineConfig({
 		coverage: {
 			enabled: true,
 			provider: "v8",
-			reporter: ["text", "json", "html"],
+			reporter: ["text", "json", "json-summary", "html"],
 			include: ["src/**/*.{ts,tsx}"],
 			exclude: [
 				"node_modules/",
