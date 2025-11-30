@@ -13,9 +13,9 @@ export default class RequiredWidthHeightRule extends Rule {
 		this.on("dom:ready", (event) => {
 			const { document } = event;
 
-			const imgEl = document.getElementsByTagName("img");
+			const images = document.getElementsByTagName("img");
 
-			for (const img of imgEl) {
+			for (const img of images) {
 				const width = img.getAttribute("width");
 				const height = img.getAttribute("height");
 
