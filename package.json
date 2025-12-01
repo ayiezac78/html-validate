@@ -24,7 +24,7 @@
 		"html-validate": "^10.4.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
-		"minimatch": "^9.0.5",
+		"minimatch": "^10.1.1",
 		"tsdown": "^0.16.8",
 		"vitest": "^4.0.14"
 	},
