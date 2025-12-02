@@ -6,7 +6,7 @@ export default defineConfig({
 	dts: true,
 	clean: true,
 	outDir: "dist",
-	sourcemap: true,
+	sourcemap: false,
 	bundle: true,
 	minify: true,
 	target: "es2020",
