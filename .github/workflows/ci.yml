@@ -52,7 +52,3 @@ jobs:
       - name: "Report Coverage"
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
-      - name: Release Changelog
-        uses: googleapis/release-please-action@v4
-        with:
-          release-type: simple
