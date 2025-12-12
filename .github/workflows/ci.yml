@@ -7,7 +7,12 @@ on:
   pull_request:
     branches:
       - main
-
+      
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -47,3 +52,7 @@ jobs:
       - name: "Report Coverage"
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
+      - name: Release Changelog
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: simple
